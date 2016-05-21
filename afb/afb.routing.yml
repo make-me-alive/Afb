@@ -1,0 +1,15 @@
+afb.admin:
+  path: 'admin/settings/advanced-form-blocks'
+  defaults:
+    _title: 'Advanced Form Block Settings'
+    # _form: '\Drupal\afb\Controller\DisplayForm'
+    _controller: '\Drupal\afb\Controller\DefaultController::afb_admin_page'
+  requirements:
+    _permission: 'administer advanced form blocks'
+
+afb.autocomplete:
+  path: '/afb/autocomplete'
+  defaults:
+    _controller: '\Drupal\afb\Controller\DefaultController::autocomplete'
+  requirements:
+    _permission: 'administer advanced form blocks'

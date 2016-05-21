@@ -1,0 +1,7 @@
+afb.admin:
+  title: 'Advanced Form Block Settings'
+  description: 'Create Node Forms and Display In Any Block Region'
+  route_name: afb.admin
+  menu_name: Advanced Form Block Settings
+  parent: system.admin
+  weight: 100

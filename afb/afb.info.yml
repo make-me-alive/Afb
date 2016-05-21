@@ -1,0 +1,5 @@
+name: 'Advanced Form block'
+description: 'Exposes any number of node add/edit forms in blocks and facilitates their ajax saving.'
+core: 8.x
+project: afb
+type: module
