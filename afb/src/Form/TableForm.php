@@ -22,8 +22,6 @@ class TableForm extends FormBase
    */
   public function buildForm(array $form, FormStateInterface $form_state)
   {
-      $form = array();
-
       $header = array(
       'title' => t('title'),
       'form_type' => t('form type'),
@@ -62,7 +60,7 @@ class TableForm extends FormBase
   '#options' => $options,
   '#empty' => t('No form blocks found'),
   );
-      dpm($form_state->get('table'));
+      // dpm($form_state->get('table'));
 
       $form['submit'] = array(
     '#type' => 'submit',
@@ -99,23 +97,21 @@ class TableForm extends FormBase
      */
     function afb_block_delete($delta)
     {
-        // $db = \Drupal::database();
+        $db = \Drupal::database();
 
-      //    $result = $db->update('afb_blocks_data', 'n')
-      //    ->fields('n', array('delta', 'title', 'content_type', 'form_type', 'nid', 'data'))
-      //    ->condition('n.delta', $delta, '=')
-      //    ->execute();
-    //      db_update('block')->fields(array('region' => '-1'))->condition('delta', $delta)->execute();
-    //      db_delete('block_custom') ->condition('bid', $delta) ->execute();
-    //      db_delete('block') ->condition('module', 'afb') ->condition('delta', $delta) ->execute();
-    //      db_delete('block_role') ->condition('module', 'afb') ->condition('delta', $delta) ->execute();
-    //     //  afb_get_node_form_block_data($delta)
-    //      $data = afb_get_node_form_block_data($delta);
-    //      // $email = $form_state->getValue('email_address');
-    //      // drupal_set_message(t('The %name block has been removed.', array('%name' => $data->title)));
-    //      drupal_set_message( $this->t('The @name block has been removed.', array('@name' => $data->title)));
-    //      cache_clear_all();
-    //      return;
+        $result = $db->update('afb_blocks_data', 'n')
+         ->fields('n', array('delta', 'title', 'content_type', 'form_type', 'nid', 'data'))->condition('n.delta', $delta, '=')->execute();
+        db_update('block')->fields(array('region' => '-1'))->condition('delta', $delta)->execute();
+        db_delete('block_custom')->condition('bid', $delta)->execute();
+        db_delete('block')->condition('module', 'afb')->condition('delta', $delta)->execute();
+        db_delete('block_role')->condition('module', 'afb')->condition('delta', $delta)->execute();
+        //  afb_get_node_form_block_data($delta)
+         $data = afb_get_node_form_block_data($delta);
+         // $email = $form_state->getValue('email_address');
+         // drupal_set_message(t('The %name block has been removed.', array('%name' => $data->title)));
+         drupal_set_message($this->t('The @name block has been removed.', array('@name' => $data->title)));
+
+        return;
     }
     // //
     //    /**
@@ -123,91 +119,34 @@ class TableForm extends FormBase
     //     */
     //
     //
-    // function afb_get_node_form_block_data($delta) {
-    //
-    //    $db = \Drupal::database();
-    //    $result = $db->select('afb_blocks_data', 'n')
-    //    ->fields('n', array('delta', 'title', 'content_type', 'form_type', 'nid', 'data'))
-    //    ->condition('n.delta', $delta, '=')
-    //    ->execute();
-    //
-    //    foreach ($result as $row) {
-    //      $result_obj = $row;
-    //    }
-    //
-    //    return $result_obj;
-    //  }
+    function afb_get_node_form_block_data($delta)
+    {
+        $db = \Drupal::database();
+        $result = $db->select('afb_blocks_data', 'n')
+       ->fields('n', array('delta', 'title', 'content_type', 'form_type', 'nid', 'data'))
+       ->condition('n.delta', $delta, '=')
+       ->execute();
+
+        foreach ($result as $row) {
+            $result_obj = $row;
+        }
+
+        return $result_obj;
+    }
     /*
      * Submit handler for the existing block list form facilitating its deletion.
      */
 // $form_state['values']['table'];
   foreach ($form_state->getValue('table') as $key => $val) {
       if ($val != 0) {
-          // $this->afb_block_delete($val);
+          //     $this->afb_block_delete($val);
       //  afb_block_delete($val);
-      //     db_delete('afb_blocks_data')
-      //       ->condition('delta', $val)
-      //       ->execute();
+          db_delete('afb_blocks_data')
+            ->condition('delta', $val)
+            ->execute();
       }
   }
-//
+
+      \Drupal::service('plugin.manager.block')->clearCachedDefinitions();
   }
-
-  /**
-   * Submit handler for the existing block list form facilitating its deletion.
-   */
-  public function afb_existing_blocks_display_form_submit($form, $form_state)
-  {
-      foreach ($form_state['values']['table'] as $key => $val) {
-          if ($val != 0) {
-              afb_block_delete($val);
-              db_delete('afb_blocks_data')
-                ->condition('delta', $val)
-                ->execute();
-          }
-      }
-  }
-/**
- * Deletes a block instance from the block tables.
- */
-public function afb_block_delete($delta)
-{
-    db_update('block')->fields(array('region' => '-1'))->condition('delta', $delta)->execute();
-    db_delete('block_custom')
-          ->condition('bid', $delta)
-          ->execute();
-    db_delete('block')
-          ->condition('module', 'afb')
-          ->condition('delta', $delta)
-          ->execute();
-    db_delete('block_role')
-          ->condition('module', 'afb')
-          ->condition('delta', $delta)
-          ->execute();
-    $data = afb_get_node_form_block_data($delta);
-    drupal_set_message(t('The %name block has been removed.', array('%name' => $data->title)));
-    cache_clear_all();
-
-    return;
-}
-/**
- * Returns the data object retrieved from the advanced form block tables.
- */
-public function afb_get_node_form_block_data($delta)
-{
-    $result = db_select('afb_blocks_data', 'n')
-                  ->fields('n', array('delta',
-                    'title',
-                    'content_type',
-                    'form_type',
-                    'nid',
-                    'data', ))
-                  ->condition('n.delta', $delta, '=')
-                  ->execute();
-    foreach ($result as $row) {
-        $result_obj = $row;
-    }
-
-    return $result_obj;
-}
 }

@@ -117,7 +117,6 @@ class ConfigBlock extends BlockBase
  public function afb_configure_node_edit_block($delta)
  {
      $form = array();
-
      $block_info = $this->afb_get_node_form_block_data($delta);
      $nid = $block_info->nid;
      $node = \Drupal\node\Entity\Node::load($nid);
@@ -192,24 +191,20 @@ public function afb_node_delete(\Drupal\Core\Entity\EntityInterface $node)
     }
 }
 
-    public function blockSubmit($form, FormStateInterface $form_state)
-    {
+/**
+ * save block configurations on submit
+ */
 
-  /**
-   * save block configurations on submit
-   */
+    public function blockSubmit($form, FormStateInterface $form_state) {
 
       $block_id = $this->getDerivativeId();
       $delta = $block_id;
-
-        $data = serialize(array(
-                           'node_fields' => $form_state->getValue('node_fields'),
-                           'vertical_tabs' => $form_state->getValue('vertical_tabs'), ));
-        $num_updated = db_update('afb_blocks_data')
-                    ->fields(array(
-                      'data' => $data,
-                    ))
-                    ->condition('delta', $delta, '=')
-                    ->execute();
+      $data = serialize(array(
+          'node_fields' => $form_state->getValue('node_fields'),
+          'vertical_tabs' => $form_state->getValue('vertical_tabs'), ));
+      $num_updated = db_update('afb_blocks_data')
+          ->fields(array( 'data' => $data, ))
+          ->condition('delta', $delta, '=')
+          ->execute();
     }
 }

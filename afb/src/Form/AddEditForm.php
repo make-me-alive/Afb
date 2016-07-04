@@ -3,6 +3,7 @@
  * @file
  *  shows the table and add edit functionalities for afb module
  */
+
 namespace Drupal\afb\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -18,8 +19,6 @@ class AddEditForm extends FormBase
 
     public function buildForm(array $form, FormStateInterface $form_state)
     {
-        $form = array();
-
         $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Title of the Block'),
@@ -90,6 +89,18 @@ class AddEditForm extends FormBase
 
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
+        $nids = (!$form_state->isValueEmpty('nid')) ? $form_state->getValue('nid') : 0;
+        if ($nids === 0 && $form_state->getValue('block_type') === 'Edit') {
+            $form_state->setErrorByName('nid', $this->t('Error creating the block'));
+        } elseif ($nids !== 0) {
+            $node = Node::load($nids);
+            $nid = $node->nid->value;
+            if (empty($nid)) {
+                $form_state->setErrorByName('nid', $this->t('Error creating the block'));
+            } else {
+                drupal_set_message(t('The Block has been succesfully created'));
+            }
+        }
     }
 
     public function submitForm(array &$form, FormStateInterface $form_state)
@@ -102,11 +113,11 @@ class AddEditForm extends FormBase
             $db = \Drupal::database();
             $type = $db->select('node_field_data', 'n')->fields('n', array('type'))->condition('nid', $nids, '=')->execute()
             ->fetchField();
-              } else {
+        } else {
             $type = $v['content_type'];
-             }
+        }
 
-          $insert = db_insert('afb_blocks_data')
+        $insert = db_insert('afb_blocks_data')
          ->fields(array('title', 'content_type', 'form_type', 'nid', 'data'))
          ->values(array(
           'title' => $v['title'],
@@ -118,11 +129,6 @@ class AddEditForm extends FormBase
           )
           ->execute();
 
-        if (isset($nid)) {
-            drupal_set_message(t('The Block has been succesfully created'));
-        } else {
-            drupal_set_message(t('Error creating the block'));
-        }
+        \Drupal::service('plugin.manager.block')->clearCachedDefinitions();
     }
-
 }
